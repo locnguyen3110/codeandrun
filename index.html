@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lộc Nguyễn Support H5GG</title>
+  <title>Code Runner</title>
   <style>
     #code {
       width: 100%;
@@ -12,18 +12,17 @@
     #result {
       width: 100%;
       height: 300px;
-      border: 1px solid #000000;
+      border: 1px solid #ccc;
       margin-top: 10px;
-      /* background-color: rgb(121, 121, 121); */
     }
     button{
-      font-weight: bold;
-      color: #000000;
-      background-color: red;
-      height: 40px;
-      width: 110px;
-      border-radius: 10px;
-    }
+  font-weight: bold;
+  color: #000000;
+  background-color: red;
+  height: 40px;
+  width: 110px;
+  border-radius: 10px;
+}
   </style>
 </head>
 <body>
@@ -31,7 +30,9 @@
   <textarea id="code" placeholder="Enter your HTML code here"></textarea>
   <button onclick="runCode()">Run Code</button>
   <button onclick="newProject()">New Project</button>
-  <button onclick="exportProject()">Export Project</button>
+  <button onclick="copyCode()">Copy Code</button>
+  <input type="file" id="fileInput" accept=".html" style="display: none;" onchange="loadFile(event)">
+  <button onclick="document.getElementById('fileInput').click()">Run File</button>
   <div id="result"></div>
 
   <script>
@@ -54,22 +55,36 @@
 
     // Function to create a new project
     function newProject() {
-      if (confirm("Bạn có chắc chắn muốn tạo một dự án mới không? Mã hiện tại của bạn sẽ bị mất.Vui lòng Xuất file để tránh mất dự án")) {
+      if (confirm("Are you sure you want to create a new project? Your current code will be lost.")) {
         document.getElementById("code").value = "";
         document.getElementById("result").innerHTML = "";
         localStorage.removeItem("userCode");
       }
     }
 
-    // Function to export the project as an HTML file
-    function exportProject() {
+    // Function to copy the code to the clipboard
+    function copyCode() {
       var code = document.getElementById("code").value;
-      var blob = new Blob([code], { type: "text/html" });
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "project.html";
-      a.click();
-      URL.revokeObjectURL(a.href);
+      navigator.clipboard.writeText(code).then(function() {
+        alert("Code copied to clipboard!");
+      }, function(err) {
+        alert("Failed to copy code: ", err);
+      });
+    }
+
+    // Function to load and run the uploaded file
+    function loadFile(event) {
+      var file = event.target.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var content = e.target.result;
+          document.getElementById("code").value = content;
+          document.getElementById("result").innerHTML = content;
+          localStorage.setItem("userCode", content); // Save loaded code to localStorage
+        };
+        reader.readAsText(file);
+      }
     }
 
     // Load the code when the page is loaded
